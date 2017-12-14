@@ -20,8 +20,8 @@ module.exports.up = function (done) {
         'z' : 'e415e43d.f10178',
         'name' : '',
         'scope' : null,
-        'x' : 214.000007629395,
-        'y' : 583.000039100647,
+        'x' : 219.000007629395,
+        'y' : 705.00004863739,
         'wires' : [
           [
             '49075d44.432d44'
@@ -34,8 +34,8 @@ module.exports.up = function (done) {
         'z' : 'e415e43d.f10178',
         'name' : '',
         'statusCode' : '',
-        'x' : 671.000007629395,
-        'y' : 584.000039100647,
+        'x' : 676.000007629395,
+        'y' : 706.00004863739,
         'wires' : []
       },
       {
@@ -46,8 +46,8 @@ module.exports.up = function (done) {
         'func' : '\nlet factories = global.get("factories"); \n\nmsg.payload = factories.messages.generic.fail;\n    \nreturn msg;',
         'outputs' : 1,
         'noerr' : 0,
-        'x' : 455.000007629395,
-        'y' : 583.000039100647,
+        'x' : 460.000007629395,
+        'y' : 705.00004863739,
         'wires' : [
           [
             '5c2fd91f.e496a8'
@@ -321,6 +321,157 @@ module.exports.up = function (done) {
         'wires' : [
           [
             '2df60a21.6f9566'
+          ]
+        ]
+      },
+      {
+        'id' : 'd5964110.27516',
+        'type' : 'http in',
+        'z' : 'e415e43d.f10178',
+        'name' : 'multi delete addr',
+        'url' : '/:network(dev|main)/addr',
+        'method' : 'delete',
+        'upload' : false,
+        'swaggerDoc' : '',
+        'x' : 130.017349243164,
+        'y' : 514.010375976563,
+        'wires' : [
+          [
+            'f70d5160.d161e'
+          ]
+        ]
+      },
+      {
+        'id' : '2898629e.6c523e',
+        'type' : 'http response',
+        'z' : 'e415e43d.f10178',
+        'name' : '',
+        'statusCode' : '',
+        'x' : 1454.64598083496,
+        'y' : 511.690922737122,
+        'wires' : []
+      },
+      {
+        'id' : 'b51c72b9.9a035',
+        'type' : 'split',
+        'z' : 'e415e43d.f10178',
+        'name' : '',
+        'splt' : '\\n',
+        'spltType' : 'str',
+        'arraySplt' : 1,
+        'arraySpltType' : 'len',
+        'stream' : false,
+        'addname' : '',
+        'x' : 464.642395019531,
+        'y' : 512.676995277405,
+        'wires' : [
+          [
+            '812c0b62.945398'
+          ]
+        ]
+      },
+      {
+        'id' : 'f70d5160.d161e',
+        'type' : 'function',
+        'z' : 'e415e43d.f10178',
+        'name' : '',
+        'func' : 'const _ = global.get(\'_\');\nconst hosts = global.get(\'factories.hosts\')[msg.req.params.network];\n\nif(!hosts)\n throw new Error();\n\n\nmsg.payload = _.chain(msg.payload)\n.toPairs()\n.map(pairs=> ({\n    host: hosts[pairs[0]],\n    address: pairs[1],\n    type: pairs[0]\n}))\n.filter(item=>item.host)\n.value();\n\nreturn msg;',
+        'outputs' : 1,
+        'noerr' : 0,
+        'x' : 326.642381668091,
+        'y' : 513.350606918335,
+        'wires' : [
+          [
+            'b51c72b9.9a035'
+          ]
+        ]
+      },
+      {
+        'id' : 'ef0cfed8.06147',
+        'type' : 'join',
+        'z' : 'e415e43d.f10178',
+        'name' : '',
+        'mode' : 'auto',
+        'build' : 'string',
+        'property' : 'payload',
+        'propertyType' : 'msg',
+        'key' : 'topic',
+        'joiner' : '\\n',
+        'joinerType' : 'str',
+        'accumulate' : false,
+        'timeout' : '',
+        'count' : '',
+        'x' : 1160.6529006958,
+        'y' : 512.190925598145,
+        'wires' : [
+          [
+            '748a028.96689fc'
+          ]
+        ]
+      },
+      {
+        'id' : '748a028.96689fc',
+        'type' : 'function',
+        'z' : 'e415e43d.f10178',
+        'name' : '',
+        'func' : 'const _ = global.get(\'_\');\n\nmsg.payload = _.chain(msg.payload)\n.transform((result, item)=>{\n    _.merge(result, item);\n}, {})\n.value();\n\nreturn msg;',
+        'outputs' : 1,
+        'noerr' : 0,
+        'x' : 1303.64597320557,
+        'y' : 511.576414108275,
+        'wires' : [
+          [
+            '2898629e.6c523e'
+          ]
+        ]
+      },
+      {
+        'id' : '812c0b62.945398',
+        'type' : 'function',
+        'z' : 'e415e43d.f10178',
+        'name' : '',
+        'func' : '\nmsg.url = `${msg.payload.host}/addr`;\nmsg.type = msg.payload.type;\nmsg.payload = {\n    address: msg.payload.address\n}\n\n//msg.address = msg.payload.address;\n\nreturn msg;',
+        'outputs' : 1,
+        'noerr' : 0,
+        'x' : 624.645851135254,
+        'y' : 513.354093551636,
+        'wires' : [
+          [
+            'a90dc056.9b646'
+          ]
+        ]
+      },
+      {
+        'id' : 'e0a395ba.179248',
+        'type' : 'function',
+        'z' : 'e415e43d.f10178',
+        'name' : '',
+        'func' : '\n\nmsg.payload = {\n    [msg.type]: msg.payload\n}\n\nreturn msg;',
+        'outputs' : 1,
+        'noerr' : 0,
+        'x' : 984.645889282226,
+        'y' : 511.45829296112,
+        'wires' : [
+          [
+            'ef0cfed8.06147'
+          ]
+        ]
+      },
+      {
+        'id' : 'a90dc056.9b646',
+        'type' : 'http-request-extended',
+        'z' : 'e415e43d.f10178',
+        'name' : '',
+        'method' : 'DELETE',
+        'ret' : 'obj',
+        'url' : '',
+        'follow-redirects' : true,
+        'tls' : '',
+        'x' : 795.079917907715,
+        'y' : 512.944467544556,
+        'wires' : [
+          [
+            'e0a395ba.179248'
           ]
         ]
       }

@@ -11,13 +11,11 @@ const path = require('path'),
 
 module.exports = {
   rest: {
-    domain: process.env.DOMAIN || 'localhost',
-    port: parseInt(process.env.REST_PORT) || 8081,
-    auth: process.env.USE_AUTH || false
+    port: parseInt(process.env.REST_PORT) || 8081
   },
   nodered: {
     mongo: {
-      uri: process.env.NODERED_MONGO_URI || process.env.MONGO_URI || 'mongodb://localhost:27017/data'
+      uri: process.env.MONGO_URI || 'mongodb://localhost:27017/data'
     },
     autoSyncMigrations: process.env.NODERED_AUTO_SYNC_MIGRATIONS || true,
     httpAdminRoot: '/admin',
@@ -37,18 +35,18 @@ module.exports = {
         },
         hosts: {
           main: {
-            bitcoin: 'https://middleware-bitcoin-mainnet-rest.chronobank.io',
-            eth: 'https://middleware-ethereum-mainnet-rest.chronobank.io',
-            litecoin: 'https://middleware-litecoin-mainnet-rest.chronobank.io',
-            nem: 'https://middleware-nem-mainnet-rest.chronobank.io',
-            waves: 'https://middleware-waves-mainnet-rest.chronobank.io'
+            bitcoin: process.env.HOST_MAIN_BITCOIN || 'https://middleware-bitcoin-mainnet-rest.chronobank.io',
+            eth: process.env.HOST_MAIN_ETH || 'https://middleware-ethereum-mainnet-rest.chronobank.io',
+            litecoin: process.env.HOST_MAIN_LITECOIN || 'https://middleware-litecoin-mainnet-rest.chronobank.io',
+            nem: process.env.HOST_MAIN_NEM || 'https://middleware-nem-mainnet-rest.chronobank.io',
+            waves: process.env.HOST_MAIN_WAVES || 'https://middleware-waves-mainnet-rest.chronobank.io'
           },
           dev: {
-            bitcoin: 'https://middleware-bitcoin-testnet-rest.chronobank.io',
-            eth: 'https://middleware-ethereum-testnet-rest.chronobank.io',
-            litecoin: 'https://middleware-litecoin-testnet-rest.chronobank.io',
-            nem: 'https://middleware-nem-testnet-rest.chronobank.io',
-            waves: 'https://middleware-waves-testnet-rest.chronobank.io'
+            bitcoin: process.env.HOST_DEV_BITCOIN || 'https://middleware-bitcoin-testnet-rest.chronobank.io',
+            eth: process.env.HOST_DEV_ETH || 'https://middleware-ethereum-testnet-rest.chronobank.io',
+            litecoin: process.env.HOST_DEV_LITECOIN || 'https://middleware-litecoin-testnet-rest.chronobank.io',
+            nem: process.env.HOST_DEV_NEM || 'https://middleware-nem-testnet-rest.chronobank.io',
+            waves: process.env.HOST_DEV_WAVES || 'https://middleware-waves-testnet-rest.chronobank.io'
           }
         }
       }

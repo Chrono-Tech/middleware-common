@@ -1,6 +1,10 @@
 const NodeRedStorageModel = require('../models/nodeRedStorageModel'),
+  MigrationModel = require('../models/migrationModel'),
   when = require('when'),
   _ = require('lodash'),
+  mongoose = require('mongoose'),
+  fs = require('fs-extra'),
+  flowTemplate = require('../migrations/templates/flowTemplate'),
   path = require('path');
 
 let simpleLoad = (type, path, parse = true) => {
@@ -21,6 +25,7 @@ let simpleLoad = (type, path, parse = true) => {
 let simpleSave = (type, path, blob) => {
 
   return when.resolve((async () => {
+
 
     let storageDocument = await NodeRedStorageModel.findOne({type: type, path: path});
 
@@ -50,9 +55,9 @@ let saveFlows = (blob) => {
       .groupBy('z')
       .toPairs()
       .map(pair => ({
-        path: pair[0] === 'undefined' ? 'tabs' : pair[0],
-        body: pair[1]
-      })
+          path: pair[0] === 'undefined' ? 'tabs' : pair[0],
+          body: pair[1]
+        })
       )
       .value();
 
@@ -63,8 +68,19 @@ let saveFlows = (blob) => {
       if (!storageDocument || !storageDocument.body)
         storageDocument = new NodeRedStorageModel({type: 'flows', path: item.path});
 
-      storageDocument.body = item.body;
+      if (!_.isEqual(storageDocument.body, item.body)) {
+        let migrations = await MigrationModel.find({});
 
+        let newMigrationName = _.chain(migrations)
+          .sortBy('id').last()
+          .get('id', 0).split('.').head().toNumber()
+          .round().add(1)
+          .add(`.${item.path}`).value();
+
+        await fs.writeFile(path.join(__dirname, '../migrations', `${newMigrationName.replace('.', '-')}.js`), flowTemplate(item, newMigrationName));
+      }
+
+      storageDocument.body = item.body;
       await NodeRedStorageModel.update({_id: storageDocument._id}, storageDocument, {
         upsert: true,
         setDefaultsOnInsert: true
@@ -73,9 +89,7 @@ let saveFlows = (blob) => {
           if (e.code !== 11000)
             return Promise.reject(e);
         });
-
     }
-
   })());
 
 };

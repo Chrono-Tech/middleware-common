@@ -30,7 +30,10 @@ module.exports = function (RED) {
 
     node.on("close", async function () {
       try {
-        await node.src.close();
+        node.exchange ?
+          await node.exchange.close() :
+          await node.queue.close();
+
         node.server.freeConnection();
         node.status({fill: "red", shape: "ring", text: "disconnected"});
       } catch (err) {
@@ -55,11 +58,10 @@ module.exports = function (RED) {
     node.server = RED.nodes.getNode(n.server);
     // set amqp node type initialization parameters
     node.amqpType = "input";
-    node.src = null;
     // node specific initialization code
     node.initialize = async function () {
       function Consume (msg) {
-        console.log('!!!');
+        console.log(msg.fields.routingKey);
         node.send({
           topic: node.topic || msg.fields.routingKey,
           payload: msg.getContent(),
@@ -86,19 +88,19 @@ module.exports = function (RED) {
     let node = this;
     RED.nodes.createNode(node, n);
     node.source = n.source;
-    node.topic = n.routingkey;
+    node.topic = n.topic;
     node.ioType = n.iotype;
+    node.noack = n.noack;
     node.ioName = n.ioname;
     node.server = RED.nodes.getNode(n.server);
     // set amqp node type initialization parameters
     node.amqpType = "output";
-    node.src = null;
     // node specific initialization code
     node.initialize = function () {
       node.on("input", async function (msg) {
-        message = msg.payload ? new amqp.Message(msg.payload, msg.options) :
+        let message = msg.payload ? new amqp.Message(msg.payload, msg.options) :
           new amqp.Message(msg);
-        message.sendTo(node.src, node.topic || msg.topic);
+        message.sendTo(node.exchange || node.queue, node.topic || msg.topic);
       });
     };
     initialize(node);
@@ -122,37 +124,33 @@ module.exports = function (RED) {
     node.servermode = n.servermode;
     node.connectionPromise = null;
     node.connection = null;
-    node.claimConnection = function () {
-      if (node.clientCount === 0) {
-        // Create the connection url for the AMQP server
-        let urlType = node.useTls ? "amqps://" : "amqp://";
-        let credentials = _.has(node, 'credentials.user') ? `${node.credentials.user}:${node.credentials.password}@` : '';
-        let urlLocation = node.host + ":" + node.port;
-        if (node.vhost) {
-          urlLocation += "/" + node.vhost;
-        }
-        if (node.keepAlive) {
-          urlLocation += "?heartbeat=" + node.keepAlive;
-        }
+    node.claimConnection = async function () {
+
+      if (node.clientCount !== 0)
+        return node.connectionPromise;
+
+      let urlType = node.useTls ? "amqps://" : "amqp://";
+      let credentials = _.has(node, 'credentials.user') ? `${node.credentials.user}:${node.credentials.password}@` : '';
+      let urlLocation = `${node.host}:${node.port}`;
+      if (node.vhost)
+        urlLocation += `/${node.vhost}`;
+
+      if (node.keepAlive)
+        urlLocation += `?heartbeat=${node.keepAlive}`;
+
+      try {
+
         node.connection = new amqp.Connection(node.servermode === '1' ? config.rabbit.url : urlType + credentials + urlLocation);
-        node.connectionPromise = node.connection.initialized.then(function () {
-          node.log("Connected to AMQP server " + urlType + urlLocation);
-        }).catch(function (e) {
-          node.error("AMQP-SERVER error: " + e.message);
-        });
-        // Create topology
+        node.connectionPromise = await node.connection.initialized;
+        node.log("Connected to AMQP server " + urlType + urlLocation);
         if (node.useTopology) {
-          try {
-            var topology = JSON.parse(node.topology);
-          }
-          catch (e) {
-            node.error("AMQP-SERVER error creating topology: " + e.message);
-          }
-          node.connectionPromise = node.connection.declareTopology(topology).catch(function (e) {
-            node.error("AMQP-SERVER error creating topology: " + e.message);
-          });
+          let topology = JSON.parse(node.topology);
+          node.connectionPromise = await node.connection.declareTopology(topology);
         }
+      } catch (e) {
+        node.error("AMQP-SERVER error creating topology: " + e.message);
       }
+
       node.clientCount++;
       return node.connectionPromise;
     };

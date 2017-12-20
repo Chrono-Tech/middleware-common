@@ -54,6 +54,7 @@
 
 
 
+
 </script>
 
 <script type="text/x-red" data-help-name="amqp in">
@@ -71,15 +72,27 @@
 
 
 
+
 </script>
 
 <!-- AMQP OUT ----------------------------------------------------------------->
 
 <script type="text/x-red" data-template-name="amqp out">
+
+
+     <div class="form-row">
+        <label>Resource</label>
+        <select id="node-input-servermode" style="width:200px;">
+            <option value="1">from config</option>
+            <option value="0">manual</option>
+        </select>
+    </div>
+
     <div class="form-row">
         <label for="node-input-server"><i class="fa fa-globe"></i> Server</label>
         <input type="text" id="node-input-server">
     </div>
+
     <div class="form-row">
         <label for="node-input-ioname"><i class="fa fa-filter"></i> Send to</label>
         <select id="node-input-iotype">
@@ -95,8 +108,8 @@
         <input type="text" id="node-input-ioname" placeholder="AMQP exchange or queue name">
     </div>
     <div class="form-row">
-        <label for="node-input-routingkey"><i class="fa fa-tasks"></i> Routing key</label>
-        <input type="text" id="node-input-routingkey" placeholder="Leave empty to use the topic of the message">
+        <label for="node-input-topic"><i class="fa fa-tasks"></i> Topic</label>
+        <input type="text" id="node-input-topic" placeholder="Leave empty to use the topic of the message">
     </div>
 
     <br/>
@@ -104,6 +117,7 @@
         <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
         <input type="text" id="node-input-name" placeholder="Name">
     </div>
+
 
 
 
@@ -121,6 +135,7 @@
    <a href="http://www.squaremobius.net/amqp.node/channel_api.html#channel_publish" target="_blank"><b>amqplib publish</b></a>
    documentation for more information.
    </p>
+
 
 
 
@@ -185,6 +200,7 @@
 
 
 
+
 </script>
 
 <script type="text/javascript">
@@ -222,7 +238,7 @@
           $('label[for="node-input-server"]').parent().show()
         }
       });
-    },
+    }
   });
 
   //
@@ -232,10 +248,11 @@
     category: "output",
     defaults: {
       name: {value: ""},
-      routingkey: {value: ""},
+      topic: {value: ""},
       iotype: {value: "0", required: true},
       ioname: {value: "", required: true},
-      server: {type: "amqp-server", required: true}
+      server: {type: "amqp-server", required: false},
+      servermode: {value: '1', required: true}
     },
     inputs: 1,
     outputs: 0,
@@ -247,6 +264,16 @@
     },
     labelStyle: function () {
       return this.name ? "node_label_italic" : "";
+    },
+    oneditprepare: function () {
+      $("#node-input-servermode").change(function (e) {
+        let val = $(this).val();
+        if (val === '1') {
+          $('label[for="node-input-server"]').parent().hide()
+        } else {
+          $('label[for="node-input-server"]').parent().show()
+        }
+      });
     }
   });
 

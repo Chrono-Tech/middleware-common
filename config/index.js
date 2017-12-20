@@ -7,6 +7,7 @@ require('dotenv').config();
 const path = require('path'),
   bunyan = require('bunyan'),
   util = require('util'),
+  _ = require('lodash'),
   log = bunyan.createLogger({name: 'core.rest'});
 
 module.exports = {
@@ -31,7 +32,7 @@ module.exports = {
     }
   },
   nodered: {
-    autoSyncMigrations: process.env.NODERED_AUTO_SYNC_MIGRATIONS || true,
+    autoSyncMigrations: _.isString(process.env.NODERED_AUTO_SYNC_MIGRATIONS) ? parseInt(process.env.NODERED_AUTO_SYNC_MIGRATIONS) : true,
     httpAdminRoot: '/admin',
     httpNodeRoot: '/',
     debugMaxLength: 1000,

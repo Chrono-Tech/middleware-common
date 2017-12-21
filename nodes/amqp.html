@@ -27,13 +27,32 @@
         </select>
     </div>
 
-        <div class="form-row">
+    <div class="form-row">
         <label for="node-input-noack"><i class="fa fa-filter"></i> noAck</label>
         <select id="node-input-noack">
           <option value="0">false</option>
           <option value="1">true</option>
         </select>
     </div>
+
+
+    <div class="form-row">
+        <label for="node-input-durablequeue"><i class="fa fa-filter"></i> durable queue</label>
+        <select id="node-input-durablequeue">
+          <option value="0">false</option>
+          <option value="1">true</option>
+        </select>
+    </div>
+
+
+    <div class="form-row">
+        <label for="node-input-durableexchange"><i class="fa fa-filter"></i> durable exchange</label>
+        <select id="node-input-durableexchange">
+          <option value="0">false</option>
+          <option value="1">true</option>
+        </select>
+    </div>
+
 
 
     <div class="form-row">
@@ -215,6 +234,8 @@
       iotype: {value: "4", required: true},
       ioname: {value: "", required: true},
       noack: {value: "0", required: true},
+      durablequeue: {value: "0", required: true},
+      durableexchange: {value: "0", required: true},
       server: {type: "amqp-server", required: false},
       servermode: {value: '1', required: true}
     },
@@ -238,6 +259,17 @@
           $('label[for="node-input-server"]').parent().show()
         }
       });
+
+
+      $("#node-input-iotype").change(function (e) {
+        let val = $(this).val();
+        if (val === '4') {
+          $('label[for="node-input-durableexchange"]').parent().hide()
+        } else {
+          $('label[for="node-input-durableexchange"]').parent().show()
+        }
+      });
+
     }
   });
 

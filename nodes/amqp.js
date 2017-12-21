@@ -14,10 +14,10 @@ module.exports = function (RED) {
     try {
       await node.server.claimConnection();
 
-      node.queue = node.server.connection.declareQueue(`${config.rabbit.serviceName}.${node.id}`);
+      node.queue = node.server.connection.declareQueue(`${config.rabbit.serviceName}.${node.id}`, {durable: node.durableQueue === '1'});
 
       if (node.ioType !== "4") {
-        node.exchange = node.server.connection.declareExchange(node.ioName, exchangeTypes[node.ioType]);
+        node.exchange = node.server.connection.declareExchange(node.ioName, exchangeTypes[node.ioType], {durable: node.durableExchange === '1'});
         node.queue.bind(node.exchange, node.topic);
       }
 
@@ -55,13 +55,14 @@ module.exports = function (RED) {
     node.ioType = n.iotype;
     node.noack = n.noack;
     node.ioName = n.ioname;
+    node.durableQueue = n.durablequeue;
+    node.durableExchange = n.durableexchange;
     node.server = RED.nodes.getNode(n.server);
     // set amqp node type initialization parameters
     node.amqpType = "input";
     // node specific initialization code
     node.initialize = async function () {
       function Consume (msg) {
-        console.log(msg.fields.routingKey);
         node.send({
           topic: node.topic || msg.fields.routingKey,
           payload: msg.getContent(),
@@ -91,6 +92,7 @@ module.exports = function (RED) {
     node.topic = n.topic;
     node.ioType = n.iotype;
     node.noack = n.noack;
+    node.durable = n.durable;
     node.ioName = n.ioname;
     node.server = RED.nodes.getNode(n.server);
     // set amqp node type initialization parameters

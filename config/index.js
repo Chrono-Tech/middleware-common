@@ -73,7 +73,7 @@ module.exports = {
         metrics: true,
         handler: () =>
           (msg) => {
-            //log.info(util.inspect(msg, null, 3));
+            log.info(util.inspect(msg, null, 3));
           }
       }
     }

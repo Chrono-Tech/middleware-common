@@ -1,4 +1,4 @@
-# middleware-mutli-rest [![Build Status](https://travis-ci.org/ChronoBank/middleware-nem-rest.svg?branch=master)](https://travis-ci.org/ChronoBank/middleware-multi-rest)
+# middleware-common [![Build Status](https://travis-ci.org/ChronoBank/middleware-common.svg?branch=master)](https://travis-ci.org/ChronoBank/middleware-common)
 
 Middleware service which serves as proxy for makig api calls to middlewares
 
@@ -62,6 +62,13 @@ HOST_DEV_ETH=https://middleware-ethereum-testnet-rest.chronobank.io
 HOST_DEV_LITECOIN=https://middleware-litecoin-testnet-rest.chronobank.io
 HOST_DEV_NEM=https://middleware-nem-testnet-rest.chronobank.io
 HOST_DEV_WAVES=https://middleware-waves-testnet-rest.chronobank.io
+
+MONGO_ETH_ACCOUNTS_COLLECTION_PREFIX=eth
+MONGO_BITCOIN_ACCOUNTS_COLLECTION_PREFIX=bitcoin
+MONGO_LITECOIN_ACCOUNTS_COLLECTION_PREFIX=litecoin
+MONGO_NEM_ACCOUNTS_COLLECTION_PREFIX=nem
+MONGO_WAVES_ACCOUNTS_COLLECTION_PREFIX=waves
+
 ```
 
 The options are presented below:
@@ -81,6 +88,12 @@ The options are presented below:
 | HOST_DEV_LITECOIN   | litecoin testnet middleware's endpoint
 | HOST_DEV_NEM   | nem testnet middleware's endpoint
 | HOST_DEV_WAVES   | waves testnet middleware's endpoint
+
+| MONGO_ETH_ACCOUNTS_COLLECTION_PREFIX   | prefix for eth accounts collection
+| MONGO_BITCOIN_ACCOUNTS_COLLECTION_PREFIX   | prefix for bitcoin accounts collection
+| MONGO_LITECOIN_ACCOUNTS_COLLECTION_PREFIX   | prefix for litecoin accounts collection
+| MONGO_NEM_ACCOUNTS_COLLECTION_PREFIX   | prefix for nem accounts collection
+| MONGO_WAVES_ACCOUNTS_COLLECTION_PREFIX   | prefix for waves accounts collection
 
 License
 ----

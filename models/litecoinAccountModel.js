@@ -27,4 +27,4 @@ const Account = new mongoose.Schema({
   created: {type: Date, required: true, default: Date.now}
 });
 
-module.exports = mongoose.model('litecoinAccount', Account);
+module.exports = mongoose.model(`${config.mongo.accounts.collectionPrefix.litecoin}Account`, Account);

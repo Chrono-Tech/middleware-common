@@ -21,10 +21,7 @@ install:
   - npm run migrate_red
 
 before_script:
-    - cd $TRAVIS_BUILD_DIR/node_modules/middleware_eth.blockProcessor && npm install
-    - cd $TRAVIS_BUILD_DIR/node_modules/middleware_eth.blockProcessor && pm2 start ipcConverter.js
-    - sleep 30 && cd $TRAVIS_BUILD_DIR/node_modules/middleware_eth.blockProcessor && pm2 start index.js
-    - cd $TRAVIS_BUILD_DIR && pm2 start index.js
+    - pm2 start index.js
 
 script:
   - sleep 20 && npm test -- --coverage
@@ -45,10 +42,15 @@ after_success:
     elif [ "$TRAVIS_TAG" != "" ]; then
       IMAGE_TAG_NAME="develop"
     fi;
-  - docker build --quiet -t gcr.io/deep-wares-144610/middleware-ethereum:$IMAGE_TAG_NAME .
-  - docker push gcr.io/deep-wares-144610/middleware-ethereum:$IMAGE_TAG_NAME
-
-
+  - IMAGE_TAG_NAME="latest"
+  - |
+    if [ "$TRAVIS_BRANCH" == "master" ]; then
+      docker build --quiet -t gcr.io/deep-wares-144610/$TRAVIS_BRANCH/middleware-common:$IMAGE_TAG_NAME .
+      docker push gcr.io/deep-wares-144610/$TRAVIS_BRANCH/middleware-common:$IMAGE_TAG_NAME
+    elif [ "$TRAVIS_BRANCH" == "develop" ]; then
+      docker build --quiet -t gcr.io/deep-wares-144610/$TRAVIS_BRANCH/middleware-common:$IMAGE_TAG_NAME .
+      docker push gcr.io/deep-wares-144610/$TRAVIS_BRANCH/middleware-common:$IMAGE_TAG_NAME
+    fi;
 
 notifications:
   email: false

@@ -1,13 +1,12 @@
-/** 
+/**
  * Mongoose model. Used to store hashes, which need to be pinned.
  * @module models/accountModel
  * @returns {Object} Mongoose model
  */
 
 const mongoose = require('mongoose'),
-  bcrypt = require('bcryptjs'),
-  messages = require('../factories/messages/addressMessageFactory'),
-  SALT_WORK_FACTOR = 10;
+  config = require('../config'),
+  messages = require('../factories/messages/addressMessageFactory');
 
 require('mongoose-long')(mongoose);
 
@@ -21,7 +20,7 @@ const Account = new mongoose.Schema({
     type: String,
     unique: true,
     required: true,
-    validate: [a=>  /^(0x)?[0-9a-fA-F]{40}$/.test(a), messages.wrongAddress]
+    validate: [a => /^(0x)?[0-9a-fA-F]{40}$/.test(a), messages.wrongAddress]
   },
   balance: {type: mongoose.Schema.Types.Long, default: 0},
   created: {type: Date, required: true, default: Date.now},
@@ -29,35 +28,4 @@ const Account = new mongoose.Schema({
   password: {type: String}
 });
 
-/**
- * Use virtual field for encrypting the password 
- */
-Account.virtual('clean_password')
-  .set(function (clean_password) {
-    this.password = this.encryptPassword(clean_password);
-  })
-  .get(function () { return this.password; });
-
-Account.methods = {
-  /**
-   * Password comparison
-   * @param  {string} plainPassword
-   * @return {boolean}
-   */
-  authenticate: function (plainPassword) {
-    return bcrypt.compareSync(plainPassword, this.password);
-  },
-  /**
-   * 
-   * @param  {string} password Plain password to encrypt
-   * @return {string} Encrypted password
-   */
-  encryptPassword: function (password) {
-    if (!password)
-      return '';
-    const salt = bcrypt.genSaltSync(SALT_WORK_FACTOR);
-    return bcrypt.hashSync(password, salt);
-  }
-};
-
-module.exports = mongoose.model('EthAccount', Account);
+module.exports = mongoose.model(`${config.mongo.accounts.collectionPrefix.eth}Account`, Account);

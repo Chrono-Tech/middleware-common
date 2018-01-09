@@ -2,7 +2,6 @@ const NodeRedStorageModel = require('../models/nodeRedStorageModel'),
   MigrationModel = require('../models/migrationModel'),
   when = require('when'),
   _ = require('lodash'),
-  mongoose = require('mongoose'),
   fs = require('fs-extra'),
   flowTemplate = require('../migrations/templates/flowTemplate'),
   path = require('path');
@@ -55,9 +54,9 @@ let saveFlows = (blob) => {
       .groupBy('z')
       .toPairs()
       .map(pair => ({
-          path: pair[0] === 'undefined' ? 'tabs' : pair[0],
-          body: pair[1]
-        })
+        path: pair[0] === 'undefined' ? 'tabs' : pair[0],
+        body: pair[1]
+      })
       )
       .value();
 

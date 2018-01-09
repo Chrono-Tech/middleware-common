@@ -1,5 +1,4 @@
 FROM node:8-slim
-ENV NETWORK_TYPE DEFAULT_NETWORK_TYPE
 ENV NPM_CONFIG_LOGLEVEL warn
 RUN apt update && \
     apt install -y python make g++ git build-essential && \
@@ -9,4 +8,4 @@ WORKDIR /app
 RUN git clone https://github.com/ChronoBank/middleware-common.git src
 RUN cd src && npm install
 EXPOSE 8080
-CMD pm2-docker start /mnt/config/${NETWORK_TYPE}/ecosystem.config.js
+CMD pm2-docker start /mnt/config/middleware-common/ecosystem.config.js

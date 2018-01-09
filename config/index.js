@@ -25,6 +25,13 @@ module.exports = {
       },
       test: {
         uri: process.env.ACCOUNTS_TESTNET_MONGO_URI || 'mongodb://localhost:27017/accounts_testent'
+      },
+      collectionPrefix: {
+        eth: process.env.MONGO_ETH_ACCOUNTS_COLLECTION_PREFIX || 'eth',
+        bitcoin: process.env.MONGO_BITCOIN_ACCOUNTS_COLLECTION_PREFIX || 'bitcoin',
+        litecoin: process.env.MONGO_LITECOIN_ACCOUNTS_COLLECTION_PREFIX || 'litecoin',
+        nem: process.env.MONGO_NEM_ACCOUNTS_COLLECTION_PREFIX || 'nem',
+        waves: process.env.MONGO_WAVES_ACCOUNTS_COLLECTION_PREFIX || 'waves'
       }
     },
     nodered: {
@@ -42,7 +49,6 @@ module.exports = {
     functionGlobalContext: {
       _: require('lodash'),
       factories: {
-        sm: require('../factories/sc/smartContractsFactory'),
         messages: {
           address: require('../factories/messages/addressMessageFactory'),
           generic: require('../factories/messages/genericMessageFactory'),
@@ -73,7 +79,7 @@ module.exports = {
         metrics: true,
         handler: () =>
           (msg) => {
-            log.info(util.inspect(msg, null, 3));
+        //    log.info(util.inspect(msg, null, 3));
           }
       }
     }

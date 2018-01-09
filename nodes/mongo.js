@@ -32,7 +32,6 @@ module.exports = function (RED) {
       let modelName = redConfig.mode === '1' ? msg.payload.model : redConfig.model;
       let requestDb = parseInt(redConfig.mode === '1' ? msg.payload.requestDb : redConfig.requestDb)  || 0;
 
-      console.log(requestDb);
       let models = (!requestDb ? mongoose : (requestDb === 1 ? mongoose.accounts.test : mongoose.accounts.main)).modelNames();
       let origName = _.find(models, m => m.toLowerCase() === mongooseUtils.toCollectionName(modelName));
 

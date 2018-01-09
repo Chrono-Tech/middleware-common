@@ -7,7 +7,8 @@ module.exports = function (RED) {
 
   async function query (type, modelName, query, requestDb) {
 
-    let connection = !requestDb || requestDb === '0' ? mongoose : (requestDb === '1' ? mongoose.accounts.test : mongoose.accounts.main);
+
+    let connection = !requestDb ? mongoose : (requestDb === 1 ? mongoose.accounts.test : mongoose.accounts.main);
 
     if (type === '0')
       return await connection.models[modelName].find(query);
@@ -29,9 +30,10 @@ module.exports = function (RED) {
     this.on('input', async function (msg) {
 
       let modelName = redConfig.mode === '1' ? msg.payload.model : redConfig.model;
-      let requestDb = redConfig.mode === '1' ? msg.payload.requestDb : redConfig.requestDb;
+      let requestDb = parseInt(redConfig.mode === '1' ? msg.payload.requestDb : redConfig.requestDb)  || 0;
 
-      let models = (!requestDb || requestDb === '0' ? mongoose : (requestDb === '1' ? mongoose.accounts.test : mongoose.accounts.main)).modelNames();
+      console.log(requestDb);
+      let models = (!requestDb ? mongoose : (requestDb === 1 ? mongoose.accounts.test : mongoose.accounts.main)).modelNames();
       let origName = _.find(models, m => m.toLowerCase() === mongooseUtils.toCollectionName(modelName));
 
       if (!origName) {
@@ -49,7 +51,6 @@ module.exports = function (RED) {
         msg.payload = await query(redConfig.requestType, origName, msg.payload.request, requestDb);
         node.send(msg);
       } catch (err) {
-        console.log(err);
         this.error(JSON.stringify(err), msg);
       }
 

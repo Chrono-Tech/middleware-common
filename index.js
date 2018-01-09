@@ -13,22 +13,38 @@ const config = require('./config'),
   log = bunyan.createLogger({name: 'core.rest'}),
   RED = require('node-red'),
   http = require('http'),
+  _ = require('lodash'),
   bodyParser = require('body-parser');
 
-require('require-all')({
+let models = require('require-all')({
   dirname: path.join(__dirname, '/models'),
   filter: /(.+Model)\.js$/
 });
 
-
 mongoose.Promise = Promise;
-mongoose.connect(config.nodered.mongo.uri, {useMongoClient: true});
+mongoose.connect(config.mongo.nodered.uri, {useMongoClient: true});
 
-mongoose.connection.on('disconnected', function () {
-  log.error('mongo disconnected!');
-  process.exit(0);
-});
+mongoose.accounts = {
+  main: mongoose.createConnection(config.mongo.accounts.main.uri),
+  test: mongoose.createConnection(config.mongo.accounts.test.uri)
+};
 
+_.chain(models)
+  .toPairs()
+  .filter(pair => /(.+)AccountModel/.test(pair[0]))
+  .forEach(pair => {
+    mongoose.accounts.main.model(pair[1].collection.collectionName, pair[1].schema);
+    mongoose.accounts.test.model(pair[1].collection.collectionName, pair[1].schema);
+  })
+  .value();
+
+[mongoose.connection, mongoose.accounts.main, mongoose.accounts.test]
+  .forEach(connection =>
+    connection.on('disconnected', function () {
+      log.error('mongo disconnected!');
+      process.exit(0);
+    })
+  );
 
 const init = async () => {
 

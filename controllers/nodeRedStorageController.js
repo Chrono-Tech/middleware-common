@@ -72,6 +72,7 @@ let saveFlows = (blob) => {
         let migrations = await MigrationModel.find({});
 
         let newMigrationName = _.chain(migrations)
+          .filter(m=>m.id)
           .sortBy('id').last()
           .get('id', 0).split('.').head().toNumber()
           .round().add(1)

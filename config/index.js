@@ -7,17 +7,32 @@ require('dotenv').config();
 const path = require('path'),
   bunyan = require('bunyan'),
   util = require('util'),
+  _ = require('lodash'),
   log = bunyan.createLogger({name: 'core.rest'});
 
 module.exports = {
   rest: {
     port: parseInt(process.env.REST_PORT) || 8081
   },
-  nodered: {
-    mongo: {
-      uri: process.env.MONGO_URI || 'mongodb://localhost:27017/data'
+  rabbit: {
+    url: process.env.RABBIT_URI || 'amqp://localhost:5672',
+    serviceName: process.env.RABBIT_SERVICE_NAME || 'common_middleware'
+  },
+  mongo: {
+    accounts: {
+      main: {
+        uri: process.env.ACCOUNTS_MAINNET_MONGO_URI || 'mongodb://localhost:27017/accounts_mainnet'
+      },
+      test: {
+        uri: process.env.ACCOUNTS_TESTNET_MONGO_URI || 'mongodb://localhost:27017/accounts_testent'
+      }
     },
-    autoSyncMigrations: process.env.NODERED_AUTO_SYNC_MIGRATIONS || true,
+    nodered: {
+      uri: process.env.MONGO_URI || 'mongodb://localhost:27017/data'
+    }
+  },
+  nodered: {
+    autoSyncMigrations: _.isString(process.env.NODERED_AUTO_SYNC_MIGRATIONS) ? parseInt(process.env.NODERED_AUTO_SYNC_MIGRATIONS) : true,
     httpAdminRoot: '/admin',
     httpNodeRoot: '/',
     debugMaxLength: 1000,
